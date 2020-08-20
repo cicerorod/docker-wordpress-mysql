@@ -1,0 +1,76 @@
+**1)** Criar a arquivo Dockerfile com a definição da imagem que precisamos:
+Exemplo:
+ 
+```
+
+FROM ubuntu
+
+MAINTAINER Jackson Araujo de Lima
+
+RUN apt-get update
+
+RUN apt-get install -y nginx && apt-get clean
+
+ADD ./configs/nginx.conf /etc/nginx/sites-enabled/default
+
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
+
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+EXPOSE 8080
+
+CMD service nginx start -g
+
+``` 
+
+
+**2)** Execuatar o comando `$ docker build -t cicerorod/nginx:v1 .` para criar a imagem contida no arquivo
+
+**3)** Para testar `$ docker run -d -p 8089:8080 --name myNginx1 cicerorod/nginx:v1`
+
+
+ou `$ docker run -it --rm cicerorod/nginx:v1 bash` para acessar o bash o linux
+
+**4)** Para acessar o servido do nginx via navegador: `http://localhost:8089`
+
+
+**5)** Criar o arquivoa docker-compose.yml que coném os serviços a serem criados
+
+```
+
+version: '2'
+
+services:
+   db:
+     image: mysql:5.7
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: somewordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     ports:
+       - "8010:80"
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: wordpress
+volumes:
+    db_data:
+
+```
+
+**5)** Executar o comando `$ docker-compose.exe up -d` para criação de todos os containers
+
+**4)** Para acessar o servido do nginx via navegador: `http://localhost:8010`
+
+**7)** Para finalizar os containers e remover-los `$ docker-compose down`
